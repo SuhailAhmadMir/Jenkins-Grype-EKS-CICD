@@ -57,7 +57,6 @@ pipeline {
     }
     post {
         success {
-            // Clean up the downloaded kubeconfig file
             sh "rm -f ${env.KUBECONFIG}"
         }
     }
