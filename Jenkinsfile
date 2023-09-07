@@ -54,11 +54,14 @@ pipeline {
                 }
             }
         }
-    }
-    post {
-        success {
-            sh "rm -f ${env.KUBECONFIG}"
+        post {
+            success {
+                script {
+                    sh "rm -f ${env.KUBECONFIG}"
+                }
+            }
         }
     }
+
   }
 }
