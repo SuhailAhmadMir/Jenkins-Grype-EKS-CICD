@@ -31,17 +31,20 @@ pipeline {
         stage('Deploy to Amazon EKS') {
             steps {
                 script {
-            // Retrieve AWS credentials from Jenkins credentials with ID 'awscreds'
+// Retrieve AWS credentials from Jenkins credentials with ID 'awscreds'
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'awscreds', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                 // Set the AWS credentials for this session
                 sh """
                     aws configure set aws_access_key_id \${AWS_ACCESS_KEY_ID}
                     aws configure set aws_secret_access_key \${AWS_SECRET_ACCESS_KEY}
                 """
-                
-                // Set the KUBECONFIG environment variable to the path of your updated kubeconfig file
-                def kubeconfigPath = "/home/ec2-user/.kube/config"
+
+                // Set the KUBECONFIG environment variable to the path of a copied kubeconfig file
+                def kubeconfigPath = "${WORKSPACE}/kubeconfig"
                 env.KUBECONFIG = kubeconfigPath
+
+                // Copy the kubeconfig file from the ec2-user's home directory to the workspace
+                sh "cp /home/ec2-user/.kube/config \${kubeconfigPath}"
 
                 // Verify that the KUBECONFIG variable is set correctly
                 echo "KUBECONFIG set to: \${env.KUBECONFIG}"
