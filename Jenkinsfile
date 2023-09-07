@@ -60,4 +60,5 @@ pipeline {
             sh "rm -f ${env.KUBECONFIG}"
         }
     }
+  }
 }
