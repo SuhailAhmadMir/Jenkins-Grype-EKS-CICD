@@ -41,6 +41,12 @@ pipeline {
                     aws configure set aws_secret_access_key \${AWS_SECRET_ACCESS_KEY}
                 """
                 
+                // Define the cluster name (you can set this dynamically)
+                def clusterName = "your-cluster-name" // Replace with your cluster name
+
+                // Update kubeconfig for the specified cluster
+                sh "aws eks update-kubeconfig --name ${clusterName} --region us-west-2" // Replace 'us-west-2' with your region
+
                 // Temporary path for kubeconfig
                 def kubeconfigPath = "/home/ec2-user/.kube/config"
 
@@ -49,7 +55,7 @@ pipeline {
 
                 // List available contexts in the KUBECONFIG file
                 sh "kubectl config get-contexts"
-                sh "kubectl get pods"
+
                 // Now, you can deploy your workloads to EKS using 'kubectl apply'
                 sh "kubectl apply -f workloads.yaml"
                
