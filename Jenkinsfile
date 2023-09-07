@@ -62,7 +62,7 @@ pipeline {
                 //def yamlFilePath = "/kubefiles/vproappdep.yaml"
 
                 // Now, you can deploy your workloads to EKS using 'kubectl apply'
-                sh "sh "kubectl apply -f /var/lib/jenkins/workspace/paac-demo/kubefiles/vproappdep.yml"
+                sh "kubectl apply -f /var/lib/jenkins/workspace/paac-demo/kubefiles/vproappdep.yml"
 "
                
                 }
