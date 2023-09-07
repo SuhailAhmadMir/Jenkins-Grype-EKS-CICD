@@ -42,7 +42,7 @@ pipeline {
                 """
                 
                 // Define the cluster name (you can set this dynamically)
-                def clusterName = "your-cluster-name" // Replace with your cluster name
+                def clusterName = "fleetman" // Replace with your cluster name
 
                 // Update kubeconfig for the specified cluster
                 sh "aws eks update-kubeconfig --name ${clusterName} --region us-west-2" // Replace 'us-west-2' with your region
