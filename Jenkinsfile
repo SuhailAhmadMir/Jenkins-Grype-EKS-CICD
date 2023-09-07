@@ -49,7 +49,7 @@ pipeline {
 
                 // List available contexts in the KUBECONFIG file
                 sh "kubectl config get-contexts"
-
+                sh "kubectl get pods"
                 // Now, you can deploy your workloads to EKS using 'kubectl apply'
                 sh "kubectl apply -f workloads.yaml"
                
