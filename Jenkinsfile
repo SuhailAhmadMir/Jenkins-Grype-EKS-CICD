@@ -55,6 +55,8 @@ pipeline {
 
                 // List available contexts in the KUBECONFIG file
                 sh "kubectl config get-contexts"
+                sh "pwd"
+                sh "ls -l /var/lib/jenkins/workspace/paac-demo/kubefiles"
 
                 // Specify the path to the vproappdep.yaml file
                 def yamlFilePath = "/var/lib/jenkins/workspace/paac-demo/kubefiles/vproappdep.yaml"
