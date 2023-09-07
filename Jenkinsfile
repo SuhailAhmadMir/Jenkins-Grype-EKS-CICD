@@ -31,41 +31,32 @@ pipeline {
         stage('Deploy to Amazon EKS') {
             steps {
                 script {
+
 // Retrieve AWS credentials from Jenkins credentials with ID 'awscreds'
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'awscreds', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                
                 // Set the AWS credentials for this session
                 sh """
                     aws configure set aws_access_key_id \${AWS_ACCESS_KEY_ID}
                     aws configure set aws_secret_access_key \${AWS_SECRET_ACCESS_KEY}
                 """
-
-                // Create a directory for the kubeconfig file if it doesn't exist
-                sh "mkdir -p \${WORKSPACE}/.kube"
-
-                // Copy the kubeconfig file from the ec2-user's home directory to the workspace
-                sh "cp /home/ec2-user/.kube/config \${WORKSPACE}/.kube/"
-
-                // Set the KUBECONFIG environment variable to the copied kubeconfig file
-                env.KUBECONFIG = "\${WORKSPACE}/.kube/config"
+                
+                // Temporary path for kubeconfig
+                def kubeconfigPath = "/home/ec2-user/.kube/config"
 
                 // Verify that the KUBECONFIG variable is set correctly
-                echo "KUBECONFIG set to: \${env.KUBECONFIG}"
+                echo "KUBECONFIG set to: ${kubeconfigPath}"
 
-                // List available contexts in the updated KUBECONFIG file
+                // List available contexts in the KUBECONFIG file
                 sh "kubectl config get-contexts"
 
                 // Now, you can deploy your workloads to EKS using 'kubectl apply'
                 sh "kubectl apply -f workloads.yaml"
+               
                 }
             }
         }
-        post {
-            success {
-                script {
-                    sh "rm -f ${env.KUBECONFIG}"
-                }
-            }
-        }
+
     }
 
   }
