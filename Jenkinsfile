@@ -63,7 +63,7 @@ pipeline {
 
                 // Now, you can deploy your workloads to EKS using 'kubectl apply'
                 sh "kubectl apply -f ${yamlFilePath}"
-"
+
                
                 }
             }
