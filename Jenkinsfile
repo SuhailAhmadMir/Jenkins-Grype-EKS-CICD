@@ -31,7 +31,7 @@ pipeline {
         stage('Deploy to Amazon EKS') {
             steps {
                 script {
-// Retrieve AWS credentials from Jenkins credentials with ID 'awscreds'
+                    // Retrieve AWS credentials from Jenkins credentials with ID 'awscreds'
             withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'awscreds', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
                 // Set the AWS credentials for this session
                 sh """
