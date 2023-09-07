@@ -56,8 +56,11 @@ pipeline {
                 // List available contexts in the KUBECONFIG file
                 sh "kubectl config get-contexts"
 
+                // Specify the path to the vproappdep.yaml file
+                def yamlFilePath = "/var/lib/jenkins/workspace/paac-demo/workspace/kubefiles/vproappdep.yaml"
+
                 // Now, you can deploy your workloads to EKS using 'kubectl apply'
-                sh "kubectl apply -f workloads.yaml"
+                sh "kubectl apply -f ${yamlFilePath}"
                
                 }
             }
