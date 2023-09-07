@@ -151,50 +151,35 @@ pipeline {
       }
     }
 
-
-stage('Download and Configure Kubeconfig') {
-            steps {
-                script {
-                   // Retrieve AWS credentials from Jenkins credentials with ID 'awscreds'
-                    def awsCredentials = credentials('awscreds')
-                    def awsAccessKeyId = awsCredentials
-
-                    // Define the AWS region and cluster name
-                    def awsRegion = 'us-west-2'
-                    def clusterName = 'fleetman'
-
-                    // Define the KUBECONFIG file path
-                    def kubeconfigPath = "${env.WORKSPACE}/kubeconfig.yaml"
-
-                    // Set the AWS credentials for this session
-                    sh """
-                        aws configure set aws_access_key_id ${awsAccessKeyId}
-                        aws configure set region ${awsRegion}
-                    """
-
-                    // Download the KUBECONFIG file from EKS
-                    sh "aws eks --region ${awsRegion} update-kubeconfig --name ${clusterName} --kubeconfig ${kubeconfigPath}"
-
-                    // Set the KUBECONFIG environment variable
-                    env.KUBECONFIG = kubeconfigPath
-
-                    // Verify that the KUBECONFIG variable is set correctly
-                    echo "KUBECONFIG set to: ${env.KUBECONFIG}"
-
-                    // List available contexts in the KUBECONFIG file
-                    sh "kubectl config get-contexts"
-
-                    // Automatically set the current context to the first available context
-                    sh "kubectl config use-context \$(kubectl config get-contexts -o name | head -n 1)"
-                }
-            }
-        }
-
         stage('Deploy to Amazon EKS') {
             steps {
                 script {
-                    // Use the 'workloads.yaml' file for deployment
-                    sh "kubectl apply -f workloads.yaml"
+            // Define the AWS region and cluster name
+            def awsRegion = 'us-west-2'
+            def clusterName = 'fleetman'
+            def contextName = 'arn:aws:eks:us-west-2:729590520513:cluster/fleetman'
+
+            // Set the AWS credentials for this session
+            withCredentials([usernamePassword(credentialsId: 'awscreds', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                sh "aws configure set aws_access_key_id \$AWS_ACCESS_KEY_ID"
+                sh "aws configure set aws_secret_access_key \$AWS_SECRET_ACCESS_KEY"
+            }
+
+            // Set the KUBECONFIG environment variable to the path of your Kubeconfig file
+            def kubeconfigPath = "~/.kube/config"
+            env.KUBECONFIG = kubeconfigPath
+
+            // Verify that the KUBECONFIG variable is set correctly
+            echo "KUBECONFIG set to: ${env.KUBECONFIG}"
+
+            // List available contexts in the KUBECONFIG file
+            sh "kubectl config get-contexts"
+
+            // Setting context
+            sh "kubectl config use-context ${contextName}"
+
+            // Now, you can deploy your workloads to EKS using 'kubectl apply'
+            sh "kubectl apply -f workloads.yaml"
                 }
             }
         }
