@@ -31,24 +31,26 @@ pipeline {
         stage('Deploy to Amazon EKS') {
             steps {
                 script {
-                    // Ensure that you have configured your Kubeconfig file manually
-                    // If you haven't, you can configure it using 'aws eks update-kubeconfig' command
+            // Retrieve AWS credentials from Jenkins credentials with ID 'awscreds'
+            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'awscreds', accessKeyVariable: 'AWS_ACCESS_KEY_ID', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                // Set the AWS credentials for this session
+                sh """
+                    aws configure set aws_access_key_id \${AWS_ACCESS_KEY_ID}
+                    aws configure set aws_secret_access_key \${AWS_SECRET_ACCESS_KEY}
+                """
+                
+                // Set the KUBECONFIG environment variable to the path of your updated kubeconfig file
+                def kubeconfigPath = "/home/ec2-user/.kube/config"
+                env.KUBECONFIG = kubeconfigPath
 
-                    // Set the KUBECONFIG environment variable to the path of your Kubeconfig file
-                    def kubeconfigPath = "/.kube/config"
-                    env.KUBECONFIG = kubeconfigPath
+                // Verify that the KUBECONFIG variable is set correctly
+                echo "KUBECONFIG set to: \${env.KUBECONFIG}"
 
-                    // Verify that the KUBECONFIG variable is set correctly
-                    echo "KUBECONFIG set to: ${env.KUBECONFIG}"
+                // List available contexts in the updated KUBECONFIG file
+                sh "kubectl config get-contexts"
 
-                    // List available contexts in the KUBECONFIG file
-                    sh "kubectl config get-contexts"
-
-                    // Setting context
-                    sh "aws eks update-kubeconfig --name ${clusterName} --region ${awsRegion}"
-
-                    // Now, you can deploy your workloads to EKS using 'kubectl apply'
-                    sh "kubectl apply -f workloads.yaml"
+                // Now, you can deploy your workloads to EKS using 'kubectl apply'
+                sh "kubectl apply -f workloads.yaml"
                 }
             }
         }
